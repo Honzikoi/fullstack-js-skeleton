@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import './MainComponent.css';
 
 const MainComponent = () => {
@@ -9,8 +9,8 @@ const MainComponent = () => {
 
     const getAllNumbers = useCallback(async() => {
         // nginx => redirect to proper url
-        const values = await axios.get('/api/values/all');
-        setvalues(values);
+        const data = await axios.get('/api/values/all');
+        setvalues(data.data.rows.map(row => row.number));
     }, []);
 
     const saveNumber = useCallback(async (event) => {
@@ -24,6 +24,10 @@ const MainComponent = () => {
         getAllNumbers()
     }, [value, getAllNumbers]);
 
+    useEffect(() => {
+        getAllNumbers();
+    }, []);
+
     return (
         <div>
             <button onClick={getAllNumbers}> Get all numbers </button><br />
@@ -33,7 +37,7 @@ const MainComponent = () => {
                     <div>{value}</div>
                 ))};
             </div>
-            <form className='form'>
+            <form className='form' onSubmit={saveNumber}>
                 <label>Enter your value: </label>
                 <input value={value} onChange={((event) => { setValue(event.target.value )})} />
                 <button>Submit</button>
